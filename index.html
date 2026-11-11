@@ -8,19 +8,18 @@
   </head>
   <body>
     <main class="home">
-      <button id="stationsButton" class="button">Pobierz stacje</button>
+      <div class="buttons_wrapper">
+        <button id="stationsButton" class="button">Pobierz stacje</button>
+        <button id="locationsButton" class="button">Pobierz lokacje</button>
+      </div>
+
       <p class="result_message" id="resultMessage"></p>
 
-      <table class="stations" id="stationsTable">
+      <table class="table" id="table">
         <thead>
-          <tr>
-            <th>Station ID</th>
-            <th>Name</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-          </tr>
+          <tr id="tableHead"></tr>
         </thead>
-        <tbody id="stationsBody"></tbody>
+        <tbody id="tableBody"></tbody>
       </table>
     </main>
     <div class="loader" id="loader">

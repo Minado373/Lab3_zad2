@@ -11,23 +11,23 @@ app.use(
   }),
 );
 
-app.get("/api/stations", async (req, res) => {
+const BASE_URL = "https://www.ncei.noaa.gov/cdo-web/api/v2";
+const ENDPOINTS = {
+  stations: "/stations",
+  locations: "/locations",
+};
+
+const getData = async (req, res, url) => {
   try {
-    const response = await fetch(
-      "https://www.ncei.noaa.gov/cdo-web/api/v2/stations",
-      {
-        headers: {
-          token: process.env.NOAA_API_TOKEN,
-        },
-      },
-    );
+    const response = await fetch(url, {
+      headers: { token: process.env.NOAA_API_TOKEN },
+    });
 
     if (!response.ok) {
       return res.status(response.status).json({
         message: "NOAA API request failed",
       });
     }
-
     const data = await response.json();
     res.json(data);
   } catch (error) {
@@ -35,7 +35,15 @@ app.get("/api/stations", async (req, res) => {
       message: error.message,
     });
   }
-});
+};
+
+app.get("/api/stations", async (req, res) =>
+  getData(req, res, `${BASE_URL}${ENDPOINTS.stations}`),
+);
+
+app.get("/api/locations", async (req, res) =>
+  getData(req, res, `${BASE_URL}${ENDPOINTS.locations}`),
+);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

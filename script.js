@@ -1,9 +1,13 @@
 const backendAPI = "http://localhost:3000/api";
 const stationsButton = document.getElementById("stationsButton");
-const stationsTable = document.getElementById("stationsTable");
-const stationsBody = document.getElementById("stationsBody");
+const locationsButton = document.getElementById("locationsButton");
+const table = document.getElementById("table");
+const tableBody = document.getElementById("tableBody");
+const tableHead = document.getElementById("tableHead");
 const resultMessage = document.getElementById("resultMessage");
 const loader = document.getElementById("loader");
+
+const RESPONSE_TYPE = { stations: "stations", locations: "locations" };
 
 const displayMessage = (message, color = "black") => {
   resultMessage.style.visibility = "visible";
@@ -12,11 +16,38 @@ const displayMessage = (message, color = "black") => {
 };
 
 const handleTableVisibility = (mode) => {
-  stationsTable.style.visibility = mode === "visible" ? "visible" : "hidden";
+  table.style.visibility = mode === "visible" ? "visible" : "hidden";
 };
 
 const changeLoaderDisplay = (mode) => {
   loader.style.display = mode === "block" ? "block" : "none";
+};
+
+const clearTable = () => {
+  while (tableHead.firstChild) {
+    tableHead.removeChild(tableHead.firstChild);
+  }
+  while (tableBody.firstChild) {
+    tableBody.removeChild(tableBody.firstChild);
+  }
+};
+
+const createTableHead = (type) => {
+  let headHTML = "";
+  if (type === RESPONSE_TYPE.stations) {
+    headHTML += `
+    <th>Station ID</th>
+    <th>Name</th>
+    <th>Latitude</th>
+    <th>Longitude</th>`;
+  } else if (type === RESPONSE_TYPE.locations) {
+    headHTML += `
+    <th>Location ID</th>
+    <th>Name</th>
+    <th>Data Coverage</th>`;
+  }
+
+  tableHead.innerHTML += headHTML;
 };
 
 const createStationRow = (station) => {
@@ -25,44 +56,79 @@ const createStationRow = (station) => {
   const latitude = station.latitude;
   const longitude = station.longitude;
 
-  const htmlRow = `<tr> 
+  return `<tr> 
     <td>${id}</td>
     <td>${name}</td>
     <td>${latitude}</td>
     <td>${longitude}</td>
   </tr>`;
-
-  return htmlRow;
 };
 
-const renderStations = (stations) => {
-  const rows = stations.map(createStationRow);
+const createLocationRow = (location) => {
+  const id = location.id;
+  const name = location.name;
+  const datacoverage = location.datacoverage;
+
+  return `<tr> 
+    <td>${id}</td>
+    <td>${name}</td>
+    <td>${datacoverage}</td>
+  </tr>`;
+};
+
+const fillTable = (rows) => {
   for (const row of rows) {
-    stationsBody.innerHTML += row;
+    tableBody.innerHTML += row;
   }
+};
+
+const render = (data, responseType) => {
+  clearTable();
+  let rows;
+
+  if (responseType === RESPONSE_TYPE.stations) {
+    createTableHead(RESPONSE_TYPE.stations);
+    rows = data.map(createStationRow);
+  } else if (responseType === RESPONSE_TYPE.locations) {
+    createTableHead(RESPONSE_TYPE.locations);
+    rows = data.map(createLocationRow);
+  }
+  fillTable(rows);
+
   resultMessage.style.visibility = "hidden";
   handleTableVisibility("visible");
 };
 
-const getStations = () => {
+const getData = async (url, responseType) => {
   try {
     changeLoaderDisplay("block");
-
-    fetch(`${backendAPI}/stations`)
-      .then((res) => res.json())
-      .then((data) => {
-        renderStations(data.results);
-        changeLoaderDisplay("none");
-      });
+    const response = await fetch(url);
+    if (!response.ok) {
+      displayMessage("Blad HTTP!", "red");
+      return;
+    }
+    const data = await response.json();
+    render(data.results, responseType);
   } catch (error) {
     displayMessage(error.message, "red");
+  } finally {
+    changeLoaderDisplay("none");
   }
+};
+
+const getStations = () => {
+  getData(`${backendAPI}/stations`, RESPONSE_TYPE.stations);
+};
+
+const getLocations = () => {
+  getData(`${backendAPI}/locations`, RESPONSE_TYPE.locations);
 };
 
 const initApp = () => {
   displayMessage("Brak wyników");
   handleTableVisibility("hidden");
   stationsButton.addEventListener("click", getStations);
+  locationsButton.addEventListener("click", getLocations);
 };
 
 initApp();
