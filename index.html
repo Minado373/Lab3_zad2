@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOAA API</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="home">
+      <button id="stationsButton" class="button">Pobierz stacje</button>
+      <p class="result_message" id="resultMessage"></p>
+
+      <table class="stations" id="stationsTable">
+        <thead>
+          <tr>
+            <th>Station ID</th>
+            <th>Name</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+          </tr>
+        </thead>
+        <tbody id="stationsBody"></tbody>
+      </table>
+    </main>
+    <div class="loader" id="loader">
+      <p>Loading...</p>
+    </div>
+    <script src="./script.js"></script>
+  </body>
+</html>
