@@ -45,6 +45,14 @@ app.get("/api/locations", async (req, res) =>
   getData(req, res, `${BASE_URL}${ENDPOINTS.locations}`),
 );
 
+app.get("/api/paramedDataset", async (req, res) => {
+  getData(
+    req,
+    res,
+    "https://www.ncei.noaa.gov/cdo-web/api/v2/data?datasetid=GSOM&locationid=ZIP:28801&startdate=2010-05-01&enddate=2010-05-01",
+  );
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

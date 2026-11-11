@@ -1,13 +1,20 @@
 const backendAPI = "http://localhost:3000/api";
+
 const stationsButton = document.getElementById("stationsButton");
 const locationsButton = document.getElementById("locationsButton");
+const paramedButton = document.getElementById("paramedButton");
+
 const table = document.getElementById("table");
 const tableBody = document.getElementById("tableBody");
 const tableHead = document.getElementById("tableHead");
 const resultMessage = document.getElementById("resultMessage");
 const loader = document.getElementById("loader");
 
-const RESPONSE_TYPE = { stations: "stations", locations: "locations" };
+const RESPONSE_TYPE = {
+  stations: "stations",
+  locations: "locations",
+  paramedDataset: "paramedDataset",
+};
 
 const displayMessage = (message, color = "black") => {
   resultMessage.style.visibility = "visible";
@@ -45,6 +52,12 @@ const createTableHead = (type) => {
     <th>Location ID</th>
     <th>Name</th>
     <th>Data Coverage</th>`;
+  } else if (type === RESPONSE_TYPE.paramedDataset) {
+    headHTML += `
+      <th>Data Type</th>
+      <th>Station</th>
+      <th>Value</th>
+    `;
   }
 
   tableHead.innerHTML += headHTML;
@@ -76,6 +89,18 @@ const createLocationRow = (location) => {
   </tr>`;
 };
 
+const createParamedDatasetRow = (dataset) => {
+  const datatype = dataset.datatype;
+  const station = dataset.station;
+  const value = dataset.value;
+
+  return `<tr> 
+    <td>${datatype}</td>
+    <td>${station}</td>
+    <td>${value}</td>
+  </tr>`;
+};
+
 const fillTable = (rows) => {
   for (const row of rows) {
     tableBody.innerHTML += row;
@@ -87,11 +112,14 @@ const render = (data, responseType) => {
   let rows;
 
   if (responseType === RESPONSE_TYPE.stations) {
-    createTableHead(RESPONSE_TYPE.stations);
+    createTableHead(responseType);
     rows = data.map(createStationRow);
   } else if (responseType === RESPONSE_TYPE.locations) {
-    createTableHead(RESPONSE_TYPE.locations);
+    createTableHead(responseType);
     rows = data.map(createLocationRow);
+  } else if (responseType === RESPONSE_TYPE.paramedDataset) {
+    createTableHead(responseType);
+    rows = data.map(createParamedDatasetRow);
   }
   fillTable(rows);
 
@@ -124,11 +152,16 @@ const getLocations = () => {
   getData(`${backendAPI}/locations`, RESPONSE_TYPE.locations);
 };
 
+const getParamedDataset = () => {
+  getData(`${backendAPI}/paramedDataset`, RESPONSE_TYPE.paramedDataset);
+};
+
 const initApp = () => {
   displayMessage("Brak wyników");
   handleTableVisibility("hidden");
   stationsButton.addEventListener("click", getStations);
   locationsButton.addEventListener("click", getLocations);
+  paramedButton.addEventListener("click", getParamedDataset);
 };
 
 initApp();
